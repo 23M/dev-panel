@@ -1,0 +1,9 @@
+/vendor/
+.php-cs-fixer.cache
+
+/.idea
+/.vscode
+.phpstorm.meta.php
+.DS_Store
+
+

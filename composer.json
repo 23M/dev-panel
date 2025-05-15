@@ -1,0 +1,35 @@
+{
+    "name": "23m/dev-panel",
+    "description": "Generate Filament 3 resources from Eloquent models automatically.",
+    "type": "library",
+    "license": "MIT",
+    "version": "0.1.0-alpha",
+    "autoload": {
+        "psr-4": {
+            "TTM\\DevPanel\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TTM\\DevPanel\\Providers\\GeneratorProvider",
+                "TTM\\DevPanel\\Providers\\DevPanelProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^11.0",
+        "filament/filament": "^3.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "friendsofphp/php-cs-fixer": "^3.75"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

@@ -1,0 +1,2 @@
+    \Filament\Forms\Components\TextInput::make('count')
+        ->numeric(),

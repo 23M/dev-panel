@@ -26,7 +26,7 @@ class BelongsToFieldStrategy implements FieldStrategyInterface
         PHP;
     }
 
-    public function getRelationColumns(Attribute $attribute): mixed
+    private function getRelationColumns(Attribute $attribute): mixed
     {
         $relationTable = (new $attribute->modelClass())->{$attribute->belongsToRelation}()->getRelated()->getTable();
         return Schema::getColumnListing($relationTable);

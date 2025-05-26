@@ -1,0 +1,3 @@
+    Select::make('test')
+        ->relationship('user', 'id')
+        ->searchable(),

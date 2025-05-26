@@ -1,0 +1,2 @@
+    \Filament\Forms\Components\Select::make('status')
+        ->options(\Workbench\App\Values\TestEnum::class),

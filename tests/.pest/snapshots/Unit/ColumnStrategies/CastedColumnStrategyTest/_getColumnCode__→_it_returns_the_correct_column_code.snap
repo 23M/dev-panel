@@ -1,0 +1,5 @@
+TextColumn::make('name')
+    ->getStateUsing(fn (\Illuminate\Database\Eloquent\Model $record): string => ($record->getRawOriginal('name') ?? ''))
+    ->limit(50)
+    ->searchable()
+    ->sortable(),

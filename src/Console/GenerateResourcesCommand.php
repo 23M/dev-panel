@@ -8,7 +8,7 @@ use TTM\DevPanel\ResourceGenerator;
 
 class GenerateResourcesCommand extends Command
 {
-    protected $signature = 'filament:generate-resources';
+    protected $signature = 'dev-panel:generate';
     protected $description = 'Generate Filament resources from models';
 
     public function handle(ModelFinder $modelFinder, ResourceGenerator $generator): void

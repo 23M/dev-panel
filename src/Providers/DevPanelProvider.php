@@ -20,6 +20,10 @@ class DevPanelProvider extends PanelProvider
 {
     public function register(): void
     {
+        $this->publishes([
+            __DIR__.'/../../config/dev-panel.php' => config_path('dev-panel.php'),
+        ]);
+
         $this->mergeConfigFrom(__DIR__.'/../../config/dev-panel.php', 'dev-panel');
 
         parent::register();

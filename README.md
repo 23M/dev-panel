@@ -15,7 +15,7 @@ composer require 23m/dev-panel:dev-main
 Then you can publish the assets and configuration file:
 
 ```bash
-php artisan vendor:publish --provider="DevPanel\DevPanelServiceProvider"
+php artisan vendor:publish --provider="vendor:publish --provider="TTM\DevPanel\Providers\DevPanelProvider""
 ```
 
 ## Configuration

@@ -27,6 +27,7 @@ use TTM\DevPanel\FieldStrategies\EnumFieldStrategy;
 use TTM\DevPanel\FieldStrategies\FieldStrategyInterface;
 use TTM\DevPanel\FieldStrategies\IntegerFieldStrategy;
 use TTM\DevPanel\FieldStrategies\JsonFieldStrategy;
+use TTM\DevPanel\FieldStrategies\TextFieldStrategy;
 use TTM\DevPanel\FieldStrategies\TranslatedFieldStrategy;
 
 class ResourceGenerator
@@ -50,6 +51,7 @@ class ResourceGenerator
             DateFieldStrategy::class,
             CastedFieldStrategy::class,
             EnumFieldStrategy::class,
+            TextFieldStrategy::class,
             DefaultFieldStrategy::class,
         ];
 

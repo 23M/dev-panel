@@ -30,7 +30,7 @@ class DevPanelProvider extends PanelProvider
         return $panel
             ->id('devPanel')
             ->path(config('dev-panel.path'))
-            ->discoverResources(in: app()->bootstrapPath().'/cache/filament-resources', for: 'App\\Filament\\Resources')
+            ->discoverResources(in: app()->bootstrapPath().'/cache/filament-resources', for: 'TTM\\DevPanel\\Resources')
             ->pages([
                 Pages\Dashboard::class,
             ])

@@ -8,7 +8,7 @@ class EnumFieldStrategy implements FieldStrategyInterface
 {
     public function isApplicable(Attribute $attribute): bool
     {
-        return enum_exists($attribute->cast);
+        return $attribute->cast && enum_exists($attribute->cast);
     }
 
     public function getFieldCode(Attribute $attribute): string

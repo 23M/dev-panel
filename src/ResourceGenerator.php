@@ -80,7 +80,7 @@ class ResourceGenerator
         $tableName = (new $modelClass())->getTable();
         $belongsToRelations = $this->getBelongsToRelations(new ReflectionClass($modelClass), $modelClass);
         $casts = (new $modelClass())->getCasts();
-        $translatableAttributes = in_array('\Spatie\Translatable\HasTranslations', class_uses_recursive($modelClass))
+        $translatableAttributes = in_array('Spatie\Translatable\HasTranslations', class_uses_recursive($modelClass))
             ? (new $modelClass())->getTranslatableAttributes()
             : [];
         $hasSoftDeletes = in_array(SoftDeletes::class, class_uses_recursive($modelClass));

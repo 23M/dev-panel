@@ -19,7 +19,7 @@ class CastedFieldStrategy implements FieldStrategyInterface
         return <<<PHP
             \Filament\Forms\Components\TextInput::make('{$attribute->name}')
                 ->formatStateUsing(fn (\$state, \Illuminate\Database\Eloquent\Model \$record, \\{$attribute->cast} \$caster): string => (\$caster->set(\$record, '{$attribute->name}', \$state, \$record->toArray()) ?? ''))
-                ->dehydrateStateUsing(fn (\$state, \Illuminate\Database\Eloquent\Model \$record, \\{$attribute->cast} \$caster): string => (\$caster->get(\$record, '{$attribute->name}', \$state, \$record->toArray()) ?? '')),
+                ->dehydrateStateUsing(fn (\$state, \Illuminate\Database\Eloquent\Model \$record, \\{$attribute->cast} \$caster): mixed => (\$caster->get(\$record, '{$attribute->name}', \$state, \$record->toArray()) ?? '')),
         PHP;
     }
 }

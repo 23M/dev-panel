@@ -1,9 +1,9 @@
 {
     "name": "23m/dev-panel",
-    "description": "Generate Filament 3 resources from Eloquent models automatically.",
+    "description": "Generate Filament 4 resources from Eloquent models automatically.",
     "type": "library",
     "license": "MIT",
-    "version": "0.1.0-alpha",
+    "version": "0.2",
     "autoload": {
         "psr-4": {
             "TTM\\DevPanel\\": "src/",
@@ -21,7 +21,7 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^11.0 || ^12.0",
-        "filament/filament": "^3.0"
+        "filament/filament": "^4.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",

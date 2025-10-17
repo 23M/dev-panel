@@ -6,7 +6,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Forms;
+use Filament\Schemas;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Forms\Components\Select;
@@ -16,10 +16,10 @@ class {{ $resourceClass }} extends Resource
 {
     protected static ?string $model = \{{ $modelClass }}::class;
 
-    public static function form(Forms\Form $form): Forms\Form
+    public static function form(Schemas\Schema $schema): Schemas\Schema
     {
-        return $form
-    ->schema([
+        return $schema
+    ->components([
 @foreach ($formFields as $field)
             {!! $field !!}
 @endforeach
@@ -30,7 +30,7 @@ class {{ $resourceClass }} extends Resource
     {
         return $table
             ->headerActions([
-                \Filament\Tables\Actions\CreateAction::make(),
+                \Filament\Actions\CreateAction::make(),
             ])
             ->filters([
 @if($hasSoftDeletes)
@@ -42,16 +42,16 @@ class {{ $resourceClass }} extends Resource
                 {!! $column !!}
 @endforeach
         ])
-        ->bulkActions([
+        ->toolbarActions([
 @if($hasSoftDeletes)
-            \Filament\Tables\Actions\BulkActionGroup::make([
-                \Filament\Tables\Actions\DeleteBulkAction::make(),
-                \Filament\Tables\Actions\ForceDeleteBulkAction::make(),
-                \Filament\Tables\Actions\RestoreBulkAction::make(),
+            \Filament\Actions\BulkActionGroup::make([
+                \Filament\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\ForceDeleteBulkAction::make(),
+                \Filament\Actions\RestoreBulkAction::make(),
             ]),
 @else
-            \Filament\Tables\Actions\BulkActionGroup::make([
-                \Filament\Tables\Actions\DeleteBulkAction::make(),
+            \Filament\Actions\BulkActionGroup::make([
+                \Filament\Actions\DeleteBulkAction::make(),
             ]),
 @endif
         ]);

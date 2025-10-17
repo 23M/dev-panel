@@ -13,7 +13,8 @@ class BooleanFieldStrategy implements FieldStrategyInterface
         return $attribute->dbType === 'boolean'
             || $attribute->dbType === 'tinyint(1)'
             || $attribute->dbType === 'bit(1)'
-            || $attribute->cast === 'boolean';
+            || $attribute->cast === 'boolean'
+            || $attribute->cast === 'bool';
     }
 
     public function getFieldCode(Attribute $attribute): string

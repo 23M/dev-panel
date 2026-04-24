@@ -2,7 +2,6 @@ declare(strict_types=1);
 
 namespace TTM\DevPanel\Resources;
 
-use app\Filament\Resources\DeviceResource;
 use App\Models\Device;
 use App\Models\DeviceGroup;
 use DB;

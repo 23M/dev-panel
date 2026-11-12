@@ -13,6 +13,7 @@ readonly class Attribute
         public ?string $cast,
         public ?string $belongsToRelation,
         public bool $hasTranslations,
+        public bool $isHidden = false,
     ) {
     }
 }

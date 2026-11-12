@@ -2,7 +2,6 @@
 
 namespace TTM\DevPanel;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -25,6 +24,7 @@ use TTM\DevPanel\FieldStrategies\DateTimeFieldStrategy;
 use TTM\DevPanel\FieldStrategies\DefaultFieldStrategy;
 use TTM\DevPanel\FieldStrategies\EnumFieldStrategy;
 use TTM\DevPanel\FieldStrategies\FieldStrategyInterface;
+use TTM\DevPanel\FieldStrategies\HiddenFieldStrategy;
 use TTM\DevPanel\FieldStrategies\IntegerFieldStrategy;
 use TTM\DevPanel\FieldStrategies\JsonFieldStrategy;
 use TTM\DevPanel\FieldStrategies\TextFieldStrategy;
@@ -43,6 +43,7 @@ class ResourceGenerator
         $this->fieldStrategies = [
             ...Config::get('dev-panel.field_strategies'),
             TranslatedFieldStrategy::class,
+            HiddenFieldStrategy::class,
             BelongsToFieldStrategy::class,
             BooleanFieldStrategy::class,
             IntegerFieldStrategy::class,
@@ -83,6 +84,7 @@ class ResourceGenerator
         $translatableAttributes = in_array('Spatie\Translatable\HasTranslations', class_uses_recursive($modelClass))
             ? (new $modelClass())->getTranslatableAttributes()
             : [];
+        $hiddenAttributes = (new $modelClass())->getHidden();
         $hasSoftDeletes = in_array(SoftDeletes::class, class_uses_recursive($modelClass));
 
         $formFields = [];
@@ -95,7 +97,8 @@ class ResourceGenerator
                 dbType: DB::getSchemaBuilder()->getColumnType($tableName, $dbColumnName),
                 cast: $casts[$dbColumnName] ?? null,
                 belongsToRelation: $belongsToRelations[$dbColumnName] ?? null,
-                hasTranslations: in_array($dbColumnName, $translatableAttributes)
+                hasTranslations: in_array($dbColumnName, $translatableAttributes),
+                isHidden: in_array($dbColumnName, $hiddenAttributes),
             );
 
             $formFields[] = $this->getFieldCode($attribute);
@@ -174,7 +177,7 @@ class ResourceGenerator
     }
 
     /**
-     * @param ReflectionClass<Model> $reflection
+     * @param ReflectionClass<object> $reflection
      * @return Collection<string, string>
      */
     private function getBelongsToRelations(ReflectionClass $reflection, string $modelClass): Collection

@@ -8,7 +8,7 @@ return [
     ],
 
     'models' => [
-        app_path('Models') => 'Workbench\\App\\Models\\',
+        dirname(__DIR__) . '/app/Models' => 'Workbench\\App\\Models',
     ],
 
     'base_model_class' => Illuminate\Database\Eloquent\Model::class,

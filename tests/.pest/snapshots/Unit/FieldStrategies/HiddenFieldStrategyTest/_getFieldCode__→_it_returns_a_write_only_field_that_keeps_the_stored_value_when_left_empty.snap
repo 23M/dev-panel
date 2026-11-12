@@ -1,0 +1,4 @@
+    \Filament\Forms\Components\TextInput::make('password')
+        ->password()
+        ->revealable()
+        ->dehydrated(fn ($state): bool => filled($state)),

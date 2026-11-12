@@ -15,6 +15,20 @@ pest()->use(\Tests\TestCase::class);
 
 /*
 |--------------------------------------------------------------------------
+| Generated dev panel resources
+|--------------------------------------------------------------------------
+|
+| Booting the application loads whatever resources an earlier run generated, and PHP cannot redefine a class
+| afterwards. So leftovers are removed once, before the first application boots; the CRUD tests generate fresh ones.
+|
+*/
+
+foreach (glob(\Orchestra\Testbench\default_skeleton_path('bootstrap/cache/filament-resources/*.php')) ?: [] as $generatedFile) {
+    unlink($generatedFile);
+}
+
+/*
+|--------------------------------------------------------------------------
 | Expectations
 |--------------------------------------------------------------------------
 |

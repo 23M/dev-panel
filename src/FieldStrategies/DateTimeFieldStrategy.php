@@ -17,7 +17,7 @@ class DateTimeFieldStrategy implements FieldStrategyInterface
     public function getFieldCode(Attribute $attribute): string
     {
         return <<<PHP
-            \Filament\Forms\Components\DatePicker::make('{$attribute->name}'),
+            \Filament\Forms\Components\DateTimePicker::make('{$attribute->name}'),
         PHP;
     }
 }

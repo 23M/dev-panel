@@ -4,3 +4,9 @@ parameters:
         - src
     tips:
         treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # Filament adds these to Livewire's test helper as runtime macros (Filament\Forms\Testing, Filament\Tables\Testing).
+        -
+            message: '#^Call to an undefined method Livewire\\Features\\SupportTesting\\Testable(<.*>)?::(fillForm|assertHasNoFormErrors|assertCanSeeTableRecords|callTableBulkAction|filterTable)\(\)\.$#'
+            identifier: method.notFound
+            path: src/Testing/ResourceCrudTester.php

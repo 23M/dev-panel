@@ -17,7 +17,8 @@ class JsonFieldStrategy implements FieldStrategyInterface
     {
         return <<<PHP
             \Filament\Forms\Components\Textarea::make('{$attribute->name}')
-                ->formatStateUsing(fn (\$state) => json_encode(\$state))
+                ->formatStateUsing(fn (\$state) => \$state === null ? null : json_encode(\$state))
+                ->dehydrateStateUsing(fn (\$state) => is_string(\$state) && \$state !== '' ? json_decode(\$state, true) : null)
                 ->json(),
         PHP;
     }

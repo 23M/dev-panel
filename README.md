@@ -63,3 +63,20 @@ To generate the panel, you can run the following command:
 php artisan dev-panel:generate
 ```
 This will read the models from the configured directories and generate the panel. The panel will be available at the configured path (default is `/dev`).
+
+## Testing the generated panel
+
+`TTM\DevPanel\Testing\ResourceCrudTester` checks that the generated resource of a model can list, create, edit and delete records (including restoring and force deleting for soft-deleting models). Records are built with the model's factory, so the model needs `HasFactory`.
+
+```php
+use TTM\DevPanel\Testing\ResourceCrudTester;
+
+it('can do CRUD for :dataset in the dev panel', function (string $model) {
+    $this->actingAs(User::factory()->create());
+
+    ResourceCrudTester::for($model)->assertCanCreate();
+    // also: assertCanList(), assertCanEdit(), assertCanDelete()
+})->with($models);
+```
+
+Filament discovers the resources while the application boots, so they have to exist **before** it boots. Run `php artisan dev-panel:generate` against a migrated database first (see `tests/Feature/DevPanelCrudTest.php` for a test that does this in a separate process and runs the checks for every model it finds).

@@ -18,8 +18,8 @@ class CastedFieldStrategy implements FieldStrategyInterface
     {
         return <<<PHP
             \Filament\Forms\Components\TextInput::make('{$attribute->name}')
-                ->formatStateUsing(fn (\$state, \Illuminate\Database\Eloquent\Model \$record, \\{$attribute->cast} \$caster): string => (\$caster->set(\$record, '{$attribute->name}', \$state, \$record->toArray()) ?? ''))
-                ->dehydrateStateUsing(fn (\$state, \Illuminate\Database\Eloquent\Model \$record, \\{$attribute->cast} \$caster): mixed => (\$caster->get(\$record, '{$attribute->name}', \$state, \$record->toArray()) ?? '')),
+                ->formatStateUsing(fn (\$state, ?\Illuminate\Database\Eloquent\Model \$record, \Filament\Schemas\Components\Component \$component, \\{$attribute->cast} \$caster): ?string => \TTM\DevPanel\CastedRecord::format(\$caster, \$record, \\{$attribute->modelClass}::class, \$component, '{$attribute->name}', \$state))
+                ->dehydrateStateUsing(fn (\$state, ?\Illuminate\Database\Eloquent\Model \$record, \Filament\Schemas\Components\Component \$component, \\{$attribute->cast} \$caster): mixed => \TTM\DevPanel\CastedRecord::parse(\$caster, \$record, \\{$attribute->modelClass}::class, \$component, '{$attribute->name}', \$state)),
         PHP;
     }
 }

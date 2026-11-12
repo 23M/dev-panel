@@ -23,7 +23,7 @@ class IntegerFieldStrategy implements FieldStrategyInterface
     {
         return <<<PHP
             \Filament\Forms\Components\TextInput::make('{$attribute->name}')
-                ->numeric(),
+                ->integer(),
         PHP;
     }
 }

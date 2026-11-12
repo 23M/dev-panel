@@ -1,3 +1,3 @@
     \Filament\Forms\Components\TextInput::make('test')
-        ->formatStateUsing(fn ($state, \Illuminate\Database\Eloquent\Model $record, \Workbench\App\Casts\CustomCast $caster): string => ($caster->set($record, 'test', $state, $record->toArray()) ?? ''))
-        ->dehydrateStateUsing(fn ($state, \Illuminate\Database\Eloquent\Model $record, \Workbench\App\Casts\CustomCast $caster): mixed => ($caster->get($record, 'test', $state, $record->toArray()) ?? '')),
+        ->formatStateUsing(fn ($state, ?\Illuminate\Database\Eloquent\Model $record, \Filament\Schemas\Components\Component $component, \Workbench\App\Casts\CustomCast $caster): ?string => \TTM\DevPanel\CastedRecord::format($caster, $record, \Workbench\App\Models\User::class, $component, 'test', $state))
+        ->dehydrateStateUsing(fn ($state, ?\Illuminate\Database\Eloquent\Model $record, \Filament\Schemas\Components\Component $component, \Workbench\App\Casts\CustomCast $caster): mixed => \TTM\DevPanel\CastedRecord::parse($caster, $record, \Workbench\App\Models\User::class, $component, 'test', $state)),

@@ -26,25 +26,34 @@ class BelongsToFieldStrategy implements FieldStrategyInterface
         PHP;
     }
 
-    private function getRelationColumns(Attribute $attribute): mixed
+    /** @return array<string, bool> nullable flag by column name */
+    private function getRelationColumns(Attribute $attribute): array
     {
         $relationTable = (new $attribute->modelClass())->{$attribute->belongsToRelation}()->getRelated()->getTable();
-        return Schema::getColumnListing($relationTable);
+
+        $columns = [];
+
+        foreach (Schema::getColumns($relationTable) as $column) {
+            $columns[$column['name']] = (bool) $column['nullable'];
+        }
+
+        return $columns;
     }
 
-    /** @param array<string> $relationColumns */
+    /**
+     * The first of the usual title columns that is always filled. A record without a title is not a valid
+     * option of the select, so a column that can be empty is not used, the first column (the key) is.
+     *
+     * @param array<string, bool> $relationColumns
+     */
     private function getTitleAttribute(array $relationColumns): string
     {
-        foreach ([
-            'name',
-            'description',
-            'label',
-        ] as $column) {
-            if (in_array($column, $relationColumns)) {
+        foreach (['name', 'title', 'subject', 'label', 'description'] as $column) {
+            if (isset($relationColumns[$column]) && ! $relationColumns[$column]) {
                 return $column;
             }
         }
 
-        return $relationColumns[0] ?? 'id';
+        return array_key_first($relationColumns) ?? 'id';
     }
 }

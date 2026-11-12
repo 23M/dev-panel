@@ -1,0 +1,2 @@
+TextColumn::make('password')
+    ->state('••••••'),

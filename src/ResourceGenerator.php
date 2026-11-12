@@ -16,6 +16,7 @@ use RuntimeException;
 use TTM\DevPanel\ColumnStrategies\CastedColumnStrategy;
 use TTM\DevPanel\ColumnStrategies\ColumnStrategyInterface;
 use TTM\DevPanel\ColumnStrategies\DefaultColumnStrategy;
+use TTM\DevPanel\ColumnStrategies\HiddenColumnStrategy;
 use TTM\DevPanel\FieldStrategies\BelongsToFieldStrategy;
 use TTM\DevPanel\FieldStrategies\BooleanFieldStrategy;
 use TTM\DevPanel\FieldStrategies\CastedFieldStrategy;
@@ -58,6 +59,7 @@ class ResourceGenerator
 
         $this->columnStrategies = [
             ...Config::get('dev-panel.column_strategies'),
+            HiddenColumnStrategy::class,
             CastedColumnStrategy::class,
             DefaultColumnStrategy::class,
         ];

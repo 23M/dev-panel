@@ -28,10 +28,19 @@ use RuntimeException;
  * Record data is taken from the model's factory, so the model has to use `HasFactory`.
  * The panel's resources have to be generated (`dev-panel:generate`) before the application boots,
  * and the test needs an authenticated user that is allowed to use the panel.
+ *
+ * Models that guard their own data can be told how with {@see self::withAttributes()}
+ * and {@see self::ignoringFields()}.
  */
 final class ResourceCrudTester
 {
     public const PANEL_ID = 'devPanel';
+
+    /** @var array<string, mixed> */
+    private array $attributes = [];
+
+    /** @var list<string> */
+    private array $ignoredFields = [];
 
     /** @param class-string<Model> $modelClass */
     private function __construct(private readonly string $modelClass)
@@ -42,6 +51,32 @@ final class ResourceCrudTester
     public static function for(string $modelClass): self
     {
         return new self($modelClass);
+    }
+
+    /**
+     * Overrides factory attributes, for values the panel's validation or the database requires
+     * that the factory does not provide (e.g. a percentage above 100 or a NOT NULL column with a default).
+     *
+     * @param array<string, mixed> $attributes
+     */
+    public function withAttributes(array $attributes): self
+    {
+        $this->attributes = $attributes;
+
+        return $this;
+    }
+
+    /**
+     * Fields the model controls itself (immutable or derived values). They keep their value when editing
+     * and are not expected to be stored the way they were typed in.
+     *
+     * @param list<string> $fields
+     */
+    public function ignoringFields(array $fields): self
+    {
+        $this->ignoredFields = $fields;
+
+        return $this;
     }
 
     /** @return class-string<Resource> */
@@ -68,21 +103,20 @@ final class ResourceCrudTester
     {
         $record = $this->createRecord();
 
-        $page = Livewire::test($this->page('index', ListRecords::class))
-            ->assertSuccessful()
-            ->assertCanSeeTableRecords([$record]);
+        $page = $this->listPage()->assertCanSeeTableRecords([$record]);
 
         Assert::assertNotEmpty($page->instance()->getTable()->getColumns(), "The dev panel table of {$this->modelClass} has no columns.");
     }
 
     public function assertCanCreate(): void
     {
-        $existingKeys = $this->newQuery()->pluck((new $this->modelClass())->getKeyName())->all();
-
         $page = Livewire::test($this->page('create', CreateRecord::class))
             ->assertSuccessful();
 
+        // Building the state may create related records (and, through model events, even more), so look at the keys afterwards.
         $state = $this->makeFormState($page);
+
+        $existingKeys = $this->newQuery()->pluck((new $this->modelClass())->getKeyName())->all();
 
         $page->fillForm($state)
             ->call('create')
@@ -105,17 +139,27 @@ final class ResourceCrudTester
 
         $this->formFields($page);
 
-        // Saving the unchanged form must not alter the record (values survive the form round trip).
+        // Saving the unchanged form must not alter plain columns, and casted columns (which may normalise their value) must settle after one save.
+        $page->call('save')->assertHasNoFormErrors();
+        $firstSavedRow = $this->databaseRow($record);
+
+        foreach ($originalRow as $column => $value) {
+            if (! $record->hasCast($column)) {
+                Assert::assertSame($value, $firstSavedRow[$column] ?? null, "Saving the unchanged {$this->modelClass} edit form changed the column '{$column}'.");
+            }
+        }
+
         $page->call('save')->assertHasNoFormErrors();
 
-        Assert::assertSame(
-            $originalRow,
-            $this->databaseRow($record),
-            "Saving the unchanged {$this->modelClass} edit form changed the record.",
-        );
+        Assert::assertSame($firstSavedRow, $this->databaseRow($record), "Saving the {$this->modelClass} edit form twice kept changing the record.");
 
-        // Changing the values must be persisted.
+        // Changing the values must be persisted. The key is never edited.
         $state = $this->makeFormState($page);
+        $state[$record->getKeyName()] = $record->getKey();
+
+        foreach ($this->ignoredFields as $field) {
+            $state[$field] = $originalRow[$field] ?? null;
+        }
 
         $page->fillForm($state)->call('save')->assertHasNoFormErrors();
 
@@ -126,7 +170,7 @@ final class ResourceCrudTester
     {
         $record = $this->createRecord();
 
-        $list = Livewire::test($this->page('index', ListRecords::class))
+        $list = $this->listPage()
             ->assertCanSeeTableRecords([$record])
             ->callTableBulkAction('delete', [$record]);
 
@@ -151,6 +195,20 @@ final class ResourceCrudTester
         Assert::assertNull($this->findWithTrashed($record), "Force deleting a {$this->modelClass} via the dev panel did not remove the record.");
     }
 
+    /**
+     * For models that refuse to be deleted (e.g. booked receipts): the panel must not get around that.
+     */
+    public function assertDeleteIsRefused(): void
+    {
+        $record = $this->createRecord();
+
+        $this->listPage()
+            ->assertCanSeeTableRecords([$record])
+            ->callTableBulkAction('delete', [$record]);
+
+        Assert::assertNotNull($this->findWithTrashed($record), "The dev panel deleted a {$this->modelClass} that must not be deleted.");
+    }
+
     /** @return Factory<Model> */
     private function factory(): Factory
     {
@@ -158,7 +216,7 @@ final class ResourceCrudTester
 
         Assert::assertInstanceOf(Factory::class, $factory, "{$this->modelClass}::factory() does not return a factory.");
 
-        return $factory;
+        return $factory->state($this->attributes);
     }
 
     private function createRecord(): Model
@@ -168,6 +226,28 @@ final class ResourceCrudTester
         Assert::assertInstanceOf(Model::class, $record);
 
         return $record;
+    }
+
+    /**
+     * The list page, newest record first, so a freshly created record is on the first page.
+     *
+     * @return Testable<ListRecords>
+     */
+    private function listPage(): Testable
+    {
+        $page = Livewire::test($this->page('index', ListRecords::class))
+            ->assertSuccessful();
+
+        $keyName = (new $this->modelClass())->getKeyName();
+        $instance = $page->instance();
+
+        Assert::assertInstanceOf(ListRecords::class, $instance);
+
+        if ($instance->getTable()->getColumn($keyName)?->isSortable()) {
+            $page->sortTable($keyName, 'desc');
+        }
+
+        return $page;
     }
 
     /**
@@ -182,7 +262,23 @@ final class ResourceCrudTester
 
         Assert::assertInstanceOf(Model::class, $model);
 
-        $state = $model->makeVisible($model->getHidden())->toArray();
+        $stored = $model->getAttributes();
+
+        // Hidden attributes are not serialised (and may not be readable at all), so they are taken as stored.
+        $state = $model->toArray();
+
+        foreach ($model->getHidden() as $hidden) {
+            if (array_key_exists($hidden, $stored)) {
+                $state[$hidden] = $stored[$hidden];
+            }
+        }
+
+        // Casts to value objects turn a column into an object. The form fields work with the stored scalar.
+        foreach ($state as $name => $value) {
+            if ($this->isClassCast($model, $name) && is_scalar($stored[$name] ?? null)) {
+                $state[$name] = $stored[$name];
+            }
+        }
 
         foreach ($this->formFields($page) as $name => $field) {
             // A text field can only hold a string, so structured values (e.g. JSON columns) are typed in as JSON.
@@ -192,6 +288,13 @@ final class ResourceCrudTester
         }
 
         return $state;
+    }
+
+    private function isClassCast(Model $model, string $name): bool
+    {
+        $cast = $model->getCasts()[$name] ?? null;
+
+        return is_string($cast) && class_exists($cast) && ! enum_exists($cast);
     }
 
     /**
@@ -223,7 +326,7 @@ final class ResourceCrudTester
             $isPlainText = ($field instanceof TextInput && ! $field->isNumeric() && ! $field->isPassword())
                 || $field instanceof Textarea;
 
-            if (! $isPlainText || ! is_string($state[$name] ?? null) || $record->hasCast($name)) {
+            if (! $isPlainText || ! is_string($state[$name] ?? null) || $record->hasCast($name) || in_array($name, $this->ignoredFields, true)) {
                 continue;
             }
 

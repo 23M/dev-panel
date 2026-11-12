@@ -3,7 +3,6 @@
     "description": "Generate Filament 5 resources from Eloquent models automatically.",
     "type": "library",
     "license": "MIT",
-    "version": "0.3",
     "autoload": {
         "psr-4": {
             "TTM\\DevPanel\\": "src/",
